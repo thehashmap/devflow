@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/health")
+@RequestMapping("/api/users/health")
 public class HealthController implements HealthIndicator {
 
     @Autowired
