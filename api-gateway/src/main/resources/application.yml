@@ -1,0 +1,117 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+      
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers: "*"
+            allow-credentials: true
+            max-age: 3600
+
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 10
+            redis-rate-limiter.burstCapacity: 20
+            redis-rate-limiter.requestedTokens: 1
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      user-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+      auth-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      code-analysis-service:
+        sliding-window-size: 5
+        failure-rate-threshold: 60
+        wait-duration-in-open-state: 45s
+      report-service:
+        sliding-window-size: 8
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+      notification-service:
+        sliding-window-size: 10
+        failure-rate-threshold: 40
+        wait-duration-in-open-state: 20s
+
+  retry:
+    instances:
+      user-service:
+        max-attempts: 3
+        wait-duration: 1s
+      code-analysis-service:
+        max-attempts: 2
+        wait-duration: 2s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+logging:
+  level:
+    com.devflow.apigateway: INFO
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/api-gateway.log
+
+jwt:
+  secret: devflow-secret-key-change-in-production
+  expiration: 86400
+
+devflow:
+  gateway:
+    rate-limit:
+      enabled: true
+      max-requests: 100
+      window-size: 60
+    circuit-breaker:
+      enabled: true
+    cors:
+      enabled: true
+      allowed-origins: "*"
