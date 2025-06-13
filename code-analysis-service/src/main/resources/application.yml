@@ -1,0 +1,218 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /api/v1
+
+spring:
+  application:
+    name: code-analysis-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devflow_analysis
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    connection-timeout: 60000
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          max-interval: 10000
+          multiplier: 2
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_SERVER_URL:http://localhost:8761/eureka/}
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+# Ollama Configuration
+ollama:
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:codellama:7b}
+  timeout: 300000 # 5 minutes
+  max-retries: 3
+
+# File Processing Configuration
+file-processing:
+  max-file-size: 52428800 # 50MB in bytes
+  supported-extensions:
+    - java
+    - py
+    - js
+    - ts
+    - cpp
+    - c
+    - cs
+    - go
+    - rs
+    - php
+    - rb
+    - swift
+    - kt
+    - scala
+    - r
+    - sql
+  temp-directory: ${TEMP_DIR:/tmp/devflow-analysis}
+
+# Analysis Configuration
+analysis:
+  async:
+    core-pool-size: 5
+    max-pool-size: 20
+    queue-capacity: 100
+  timeout-minutes: 10
+  batch-size: 10
+
+# Logging Configuration
+logging:
+  level:
+    com.devflow.analysis: DEBUG
+    org.springframework.amqp: INFO
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/code-analysis-service.log
+    max-size: 10MB
+    max-history: 30
+
+# Management and Monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  health:
+    rabbit:
+      enabled: true
+    db:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Custom Application Properties
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+
+  security:
+    jwt:
+      secret: ${JWT_SECRET:devflow-secret-key-change-in-production}
+      expiration: 86400000 # 24 hours
+
+---
+# Development Profile
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.devflow.analysis: DEBUG
+    org.springframework.web: DEBUG
+
+ollama:
+  base-url: http://localhost:11434
+  model: codellama:7b
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:devflow_analysis}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+logging:
+  level:
+    com.devflow.analysis: INFO
+    org.springframework: WARN
+    org.hibernate: WARN
+
+ollama:
+  base-url: ${OLLAMA_BASE_URL}
+  model: ${OLLAMA_MODEL:codellama:13b}
+
+---
+# Docker Profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/devflow_analysis
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+
+ollama:
+  base-url: http://ollama:11434
