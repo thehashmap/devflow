@@ -28,8 +28,8 @@ A microservices-based platform for code analysis and quality assessment using AI
 ## Development Progress
 
 - [x] Project structure and Docker setup
-- [ ] User Service implementation
-- [ ] API Gateway setup
+- [x] User Service implementation
+- [x] API Gateway setup
 - [ ] Code Analysis Service
 - [ ] Report Service
 - [ ] Notification Service

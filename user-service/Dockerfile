@@ -1,7 +1,9 @@
-# API Gateway Service Dockerfile
-# Location: api-gateway/Dockerfile
+# User Management Service Dockerfile
 
 FROM openjdk:17-jdk-slim
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -24,11 +26,11 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # Expose port
-EXPOSE 8080
+EXPOSE 8081
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/actuator/health || exit 1
+    CMD curl -f http://localhost:8081/actuator/health || exit 1
 
 # Run the application
-CMD ["java", "-jar", "target/api-gateway-1.0.0.jar"]
+CMD ["java", "-jar", "target/user-service-1.0.0.jar"]
