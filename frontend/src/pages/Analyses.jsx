@@ -22,7 +22,7 @@ import { codeAnalysisService } from '../services/codeAnalysisService';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
-const CodeAnalysis = () => {
+const Analyses = () => {
   const [filters, setFilters] = useState({
     status: '',
     language: '',
@@ -434,4 +434,4 @@ const CodeAnalysis = () => {
   );
 };
 
-export default CodeAnalysis;
+export default Analyses;
