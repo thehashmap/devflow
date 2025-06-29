@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { Bell, Check, CheckCheck, Trash2, Mail, AlertCircle, Info, CheckCircle, Calendar, Filter } from 'lucide-react';
-import { notificationService } from '../services/notificationService';
+import { notificationService } from '../service/notificationService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -10,13 +10,60 @@ const NotificationsPage = () => {
   const [filter, setFilter] = useState('all'); // all, unread, read
   const queryClient = useQueryClient();
 
-  const { data: notifications, isLoading, error } = useQuery(
-    ['notifications', filter],
-    () => notificationService.getNotifications(filter),
+  // const { data: notifications, isLoading, error } = useQuery(
+  //   ['notifications', filter],
+  //   () => notificationService.getNotifications(filter),
+  //   {
+  //     staleTime: 30000, // 30 seconds
+  //   }
+  // );
+
+  /////////////////////////////////////////////////////////////////////////
+  // Mock notifications data for development
+  const mockNotifications = [
     {
-      staleTime: 30000, // 30 seconds
-    }
-  );
+      id: 1,
+      type: 'analysis_complete',
+      title: 'Analysis Complete',
+      message: 'Your code analysis for UserService.java is complete.',
+      isRead: false,
+      createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+    },
+    {
+      id: 2,
+      type: 'analysis_failed',
+      title: 'Analysis Failed',
+      message: 'Analysis for PaymentController.js failed due to errors.',
+      isRead: false,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
+    },
+    {
+      id: 3,
+      type: 'report_ready',
+      title: 'Report Ready',
+      message: 'Your report for Project Alpha is ready to download.',
+      isRead: true,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+    },
+    {
+      id: 4,
+      type: 'info',
+      title: 'Welcome!',
+      message: 'Welcome to DevFlow. Start your first analysis now.',
+      isRead: true,
+      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+    },
+  ];
+
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  const notifications = mockNotifications.filter(n => {
+    if (filter === 'all') return true;
+    if (filter === 'unread') return !n.isRead;
+    if (filter === 'read') return n.isRead;
+    return true;
+  });
+/////////////////////////////////////////////////////////////////
 
   const markAsReadMutation = useMutation(notificationService.markAsRead, {
     onSuccess: () => {

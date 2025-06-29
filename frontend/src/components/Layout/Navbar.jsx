@@ -10,8 +10,8 @@ import {
   ChevronDown,
   X
 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNotifications } from '../../contexts/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 
 const Navbar = () => {
   const [showNotifications, setShowNotifications] = useState(false);

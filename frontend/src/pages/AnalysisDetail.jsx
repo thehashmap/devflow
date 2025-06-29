@@ -16,17 +16,18 @@ import {
   Shield,
   Zap
 } from 'lucide-react';
-import { analysisService } from '../services/analysisService';
-import { reportService } from '../services/reportService';
+import { codeAnalysisService } from '../service/codeAnalysisService';
+import { reportService } from '../service/reportService';
 
 const AnalysisDetail = () => {
   const { id } = useParams();
 
   const { data: analysis, isLoading, error } = useQuery(
     ['analysis', id],
-    () => analysisService.getAnalysisById(id),
+    () => codeAnalysisService.getAnalysisById(id),
     {
-      refetchInterval: analysis?.status === 'processing' ? 5000 : false,
+      // refetchInterval: analysis?.status === 'processing' ? 5000 : false,
+      refetchInterval: false,
     }
   );
 

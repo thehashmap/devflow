@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useForm } from 'react-hook-form';
 import { User, Mail, Calendar, MapPin, Phone, Building, Save, Edit, Camera, Shield, Key, Eye, EyeOff } from 'lucide-react';
-import { authService } from '../services/authService';
+import { authService } from '../service/authService';
 import LoadingSpinner, { ButtonSpinner } from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 
@@ -15,14 +15,34 @@ const ProfilePage = () => {
 
   const queryClient = useQueryClient();
 
-  const { data: profile, isLoading, error } = useQuery(
-    'profile',
-    authService.getProfile,
-    {
-      staleTime: 300000, // 5 minutes
-    }
-  );
+  // const { data: profile, isLoading, error } = useQuery(
+  //   'profile',
+  //   authService.getProfile,
+  //   {
+  //     staleTime: 300000, // 5 minutes
+  //   }
+  // );
 
+  ///////////////////////////////////////////////////////
+  // Mock profile data for development
+  const mockProfile = {
+    firstName: 'Jane',
+    lastName: 'Doe',
+    email: 'jane.doe@example.com',
+    role: 'Developer',
+    phone: '+1 555-123-4567',
+    company: 'DevFlow Inc.',
+    location: 'San Francisco, CA',
+    bio: 'Passionate developer and code quality enthusiast.',
+    avatar: '', // You can use a placeholder image URL if you want
+    createdAt: '2023-01-01T12:00:00Z',
+  };
+
+  // Simulate loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const profile = mockProfile;
+/////////////////////////////////////////////////////////////////
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: profile
   });

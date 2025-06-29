@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authService } from '../services/authService';
+import { authService } from '../service/authService';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
@@ -16,23 +16,36 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const userData = await authService.validateToken(token);
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Auth initialization failed:', error);
-        localStorage.removeItem('token');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    initializeAuth();
+  // DEV: Set a dummy user for development so all pages are accessible
+  useEffect(() => {
+    // Comment out the real auth logic for now
+    // const initializeAuth = async () => {
+    //   try {
+    //     const token = localStorage.getItem('token');
+    //     if (token) {
+    //       const userData = await authService.validateToken(token);
+    //       setUser(userData);
+    //     }
+    //   } catch (error) {
+    //     console.error('Auth initialization failed:', error);
+    //     localStorage.removeItem('token');
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+    // initializeAuth();
+
+    // Set a dummy user
+    setUser({
+      id: 1,
+      firstName: 'Dev',
+      lastName: 'User',
+      email: 'devuser@example.com',
+      role: 'admin',
+      avatar: '',
+    });
+    setLoading(false);
   }, []);
 
   const login = async (credentials) => {

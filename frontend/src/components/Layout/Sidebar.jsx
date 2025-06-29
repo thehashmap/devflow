@@ -12,7 +12,7 @@ import {
   Upload,
   LogOut
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
@@ -21,7 +21,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const menuItems = [
     { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/upload', icon: Upload, label: 'Upload Code' },
-    { path: '/analyses', icon: FileText, label: 'Analyses' },
+    { path: '/analysis', icon: FileText, label: 'Analyses' },
     { path: '/reports', icon: BarChart3, label: 'Reports' },
     { path: '/history', icon: History, label: 'History' },
     { path: '/notifications', icon: Bell, label: 'Notifications' },
@@ -56,12 +56,12 @@ const Sidebar = ({ isOpen, onClose }) => {
         w-64 flex flex-col
       `}>
         {/* Logo */}
-        <div className="flex items-center gap-3 p-6 border-b border-gray-200">
+        {/* <div className="flex items-center gap-3 p-6 border-b border-gray-200">
           <div className="p-2 bg-blue-600 rounded-lg">
             <Code2 className="w-6 h-6 text-white" />
           </div>
           <span className="text-xl font-bold text-gray-900">DevFlow</span>
-        </div>
+        </div> */}
 
         {/* User info */}
         <div className="p-4 border-b border-gray-200">
