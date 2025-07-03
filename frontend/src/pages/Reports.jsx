@@ -10,7 +10,7 @@ import {
   BarChart3,
   RefreshCw
 } from 'lucide-react';
-import { reportService } from '../services/reportService';
+import { reportService } from '../service/reportService';
 
 const Reports = () => {
   const [filters, setFilters] = useState({

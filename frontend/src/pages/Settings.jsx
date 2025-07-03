@@ -13,8 +13,8 @@ import {
   AlertTriangle,
   Settings as SettingsIcon
 } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
-import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
+import { authService } from '../service/authService';
 import toast from 'react-hot-toast';
 
 const Settings = () => {

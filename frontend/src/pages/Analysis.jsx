@@ -18,11 +18,11 @@ import {
   ChevronRight,
   Eye
 } from 'lucide-react';
-import { codeAnalysisService } from '../services/codeAnalysisService';
+import { codeAnalysisService } from '../service/codeAnalysisService';
 import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 
-const Analyses = () => {
+const Analysis = () => {
   const [filters, setFilters] = useState({
     status: '',
     language: '',
@@ -33,21 +33,77 @@ const Analyses = () => {
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDir, setSortDir] = useState('desc');
 
-  const { data, isLoading, error, refetch } = useQuery(
-    ['analyses', currentPage, pageSize, filters, sortBy, sortDir],
-    () => codeAnalysisService.getAnalyses({
-      page: currentPage,
-      size: pageSize,
-      status: filters.status,
-      language: filters.language,
-      sortBy,
-      sortDir
-    }),
-    {
-      keepPreviousData: true,
-      staleTime: 30000 // 30 seconds
-    }
-  );
+  // const { data, isLoading, error, refetch } = useQuery(
+  //   ['analyses', currentPage, pageSize, filters, sortBy, sortDir],
+  //   () => codeAnalysisService.getAnalyses({
+  //     page: currentPage,
+  //     size: pageSize,
+  //     status: filters.status,
+  //     language: filters.language,
+  //     sortBy,
+  //     sortDir
+  //   }),
+  //   {
+  //     keepPreviousData: true,
+  //     staleTime: 30000 // 30 seconds
+  //   }
+  // );
+
+  /////////////////////////////////////////////////
+  // Mock data for development
+  const mockData = {
+    content: [
+      {
+        id: 1,
+        fileName: 'UserService.java',
+        status: 'COMPLETED',
+        language: 'Java',
+        createdAt: '2025-06-29T10:30:00Z',
+        fileCount: 2,
+        qualityScore: 85,
+        summary: 'No major issues found. Code quality is good.',
+        issues: [
+          { type: 'Warning', count: 2 },
+          { type: 'Code Smell', count: 1 }
+        ]
+      },
+      {
+        id: 2,
+        fileName: 'PaymentController.js',
+        status: 'FAILED',
+        language: 'JavaScript',
+        createdAt: '2025-06-28T09:45:00Z',
+        fileCount: 1,
+        qualityScore: 55,
+        summary: 'Critical errors found in payment logic.',
+        issues: [
+          { type: 'Error', count: 3 },
+          { type: 'Warning', count: 1 },
+          { type: 'Code Smell', count: 2 },
+          { type: 'Security', count: 1 }
+        ]
+      },
+      {
+        id: 3,
+        fileName: 'AuthMiddleware.py',
+        status: 'RUNNING',
+        language: 'Python',
+        createdAt: '2025-06-30T08:15:00Z',
+        fileCount: 1,
+        qualityScore: null,
+        summary: '',
+        issues: []
+      }
+    ],
+    totalPages: 1,
+    totalElements: 3
+  };
+
+  const [isLoading] = useState(false);
+  const [error] = useState(null);
+  const data = mockData;
+  const refetch = () => {};
+  /////////////////////////////////////////////////////////
 
   const getStatusConfig = (status) => {
     const configs = {
@@ -280,7 +336,7 @@ const Analyses = () => {
                         <h3 className="text-lg font-medium text-gray-900">
                           {analysis.fileName || 'Unnamed Analysis'}
                         </h3>
-                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${status.bg} ${statusConfig.color}`}>
+                        <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusConfig.bg} ${statusConfig.color}`}>
                           <StatusIcon className="w-3 h-3" />
                           {statusConfig.label}
                         </div>
@@ -333,7 +389,7 @@ const Analyses = () => {
                     {/* Action Menu */}
                     <div className="flex items-center gap-2">
                       <Link
-                        to={`/analyses/${analysis.id}`}
+                        to={`/analysis/${analysis.id}`}
                         className="inline-flex items-center gap-1 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                       >
                         <Eye className="w-4 h-4" />
@@ -434,4 +490,4 @@ const Analyses = () => {
   );
 };
 
-export default Analyses;
+export default Analysis;
