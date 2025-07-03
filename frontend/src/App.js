@@ -17,6 +17,8 @@ import LoadingSpinner from './components/LoadingSpinner';
 import './App.css';
 import AnalysisDetail from './pages/AnalysisDetail';
 import NotificationsPage from './pages/NotificationsPage';
+import UploadCode from './pages/UploadCode';
+import History from './pages/History';
 
 const queryClient = new QueryClient({
  defaultOptions: {
@@ -53,7 +55,7 @@ function AppLayout({ children }) {
      <Navbar />
      <div className="flex">
        <Sidebar />
-       <main className="flex-1 ml-6  p-8">
+       <main className="flex-1  p-8">
          {children}
        </main>
      </div>
@@ -112,6 +114,16 @@ function App() {
                 <Route path="/settings" element={
                   // <ProtectedRoute>
                     <Settings />
+                  // </ProtectedRoute>
+                } />
+                <Route path="/upload" element={
+                  // <ProtectedRoute>
+                    <UploadCode />
+                  // </ProtectedRoute>
+                } />
+                <Route path="/history" element={
+                  // <ProtectedRoute>
+                    <History />
                   // </ProtectedRoute>
                 } />
 

@@ -49,7 +49,7 @@ const Sidebar = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <div className={`
-        fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50
+        fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 z-50 overflow-hidden
         transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         lg:translate-x-0 lg:static lg:z-auto
@@ -64,7 +64,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div> */}
 
         {/* User info */}
-        <div className="p-4 border-b border-gray-200">
+        <div className="p-4 pt-7 border-b border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-blue-600 font-semibold">
