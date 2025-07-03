@@ -35,7 +35,8 @@ const Login = ({ onLogin }) => {
           />
           <button type="submit">Login</button>
         </form>
-        <p>Demo: Use any username/password to login</p>
+        <p>Demo: Use any username/password to login </p>
+        <p>(Real application to roll out soon!)</p>
       </div>
     </div>
   );
