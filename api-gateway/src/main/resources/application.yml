@@ -21,20 +21,6 @@ spring:
       discovery:
         locator:
           enabled: false
-      
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowed-origin-patterns: "*"
-            allowed-methods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowed-headers: "*"
-            allow-credentials: true
-            max-age: 3600
 
       default-filters:
         - name: RequestRateLimiter

@@ -124,7 +124,7 @@ public class UserService {
         return convertToResponseDto(updatedUser);
     }
 
-    private UserResponseDto convertToResponseDto(User user) {
+    public UserResponseDto convertToResponseDto(User user) {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());

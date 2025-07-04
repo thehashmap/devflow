@@ -1,16 +1,16 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { authService } from '../service/authService';
-import LoadingSpinner from '../components/LoadingSpinner';
+import React, { useState, useContext } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { authService } from "../service/authService";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    usernameOrEmail: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
   const { login } = useAuth();
@@ -18,28 +18,28 @@ const Login = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const validateForm = () => {
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return false;
-    }
-    
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
+    if (!formData.usernameOrEmail || !formData.password) {
+      setError("Please fill in all fields");
       return false;
     }
 
+    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // if (!emailRegex.test(formData.email)) {
+    //   setError("Please enter a valid email address");
+    //   return false;
+    // }
+
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return false;
     }
 
@@ -48,11 +48,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       let response;
@@ -60,16 +60,18 @@ const Login = () => {
         response = await authService.register(formData);
       } else {
         response = await authService.login(formData);
+        // console.log("Login response:", response);
       }
 
-      if (response.success) {
-        login(response.data.user, response.data.token);
-        navigate('/dashboard');
+      if (response.token) {
+        login(response.username, response.token);
+        console.log("Login successful, navigating to dashboard");
+        navigate("/dashboard");
       } else {
-        setError(response.message || 'Authentication failed');
+        setError(response.message || "Authentication failed");
       }
     } catch (err) {
-      setError(err.message || 'An error occurred. Please try again.');
+      setError(err.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -77,8 +79,11 @@ const Login = () => {
 
   const toggleMode = () => {
     setIsSignUp(!isSignUp);
-    setError('');
-    setFormData({ email: '', password: '' });
+    setError("");
+    setFormData({
+      usernameOrEmail: "",
+      password: "",
+    });
   };
 
   return (
@@ -87,13 +92,23 @@ const Login = () => {
         {/* Header */}
         <div className="text-center">
           <div className="mx-auto h-12 w-12 bg-blue-600 rounded-lg flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            <svg
+              className="h-8 w-8 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+              />
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-white">DevFlow</h2>
           <p className="mt-2 text-blue-200">
-            {isSignUp ? 'Create your account' : 'Sign in to your account'}
+            {isSignUp ? "Create your account" : "Sign in to your account"}
           </p>
         </div>
 
@@ -107,16 +122,19 @@ const Login = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="usernameOrEmail"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Email Address
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="usernameOrEmail"
+                name="usernameOrEmail"
+                type="text"
+                autoComplete="usernameOrEmail"
                 required
-                value={formData.email}
+                value={formData.usernameOrEmail}
                 onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your email"
@@ -124,7 +142,10 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Password
               </label>
               <input
@@ -149,11 +170,17 @@ const Login = () => {
                     type="checkbox"
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  <label
+                    htmlFor="remember-me"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
                     Remember me
                   </label>
                 </div>
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-blue-600 hover:text-blue-500"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -166,8 +193,10 @@ const Login = () => {
             >
               {isLoading ? (
                 <LoadingSpinner size="sm" />
+              ) : isSignUp ? (
+                "Create Account"
               ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
@@ -179,7 +208,9 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  {isSignUp
+                    ? "Already have an account?"
+                    : "Don't have an account?"}
                 </span>
               </div>
             </div>
@@ -190,7 +221,7 @@ const Login = () => {
                 onClick={toggleMode}
                 className="w-full text-center text-blue-600 hover:text-blue-500 font-medium transition duration-200"
               >
-                {isSignUp ? 'Sign in here' : 'Create account here'}
+                {isSignUp ? "Sign in here" : "Create account here"}
               </button>
             </div>
           </div>
@@ -200,7 +231,8 @@ const Login = () => {
         <div className="bg-blue-800 bg-opacity-50 rounded-lg p-4 text-center">
           <p className="text-blue-200 text-sm mb-2">Demo Credentials:</p>
           <p className="text-white text-xs">
-            Email: demo@devflow.com<br />
+            Email: demo@devflow.com
+            <br />
             Password: demo123
           </p>
         </div>

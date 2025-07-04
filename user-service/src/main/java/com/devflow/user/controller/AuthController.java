@@ -16,11 +16,28 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "Authentication management APIs")
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @GetMapping("/me")
+    @Operation(summary = "Get current user", description = "Get details of the currently authenticated user")
+    public ResponseEntity<UserResponseDto> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Extract token from Authorization header (remove "Bearer " prefix)
+            String token = authHeader;
+            if (authHeader.startsWith("Bearer ")) {
+                token = authHeader.substring(7);
+            }
+
+            UserResponseDto userDetails = authService.getCurrentUser(token);
+            return ResponseEntity.ok(userDetails);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     @PostMapping("/login")
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")

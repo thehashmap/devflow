@@ -53,4 +53,16 @@ public class AuthService {
     public String getUsernameFromToken(String token) {
         return jwtUtil.getUsernameFromToken(token);
     }
+
+    public UserResponseDto getCurrentUser(String token) {
+        if (!validateToken(token)) {
+            throw new RuntimeException("Invalid or expired JWT token");
+        }
+
+        String username = getUsernameFromToken(token);
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userService.convertToResponseDto(user);
+    }
 }

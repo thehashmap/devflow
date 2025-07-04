@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 @Tag(name = "User Management", description = "User management APIs")
-@CrossOrigin(origins = "*", maxAge = 3600)
+//@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 
     @Autowired
