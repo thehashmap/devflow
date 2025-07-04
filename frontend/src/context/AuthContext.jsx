@@ -15,53 +15,92 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
-  // DEV: Set a dummy user for development so all pages are accessible
   useEffect(() => {
-    // Comment out the real auth logic for now
     const initializeAuth = async () => {
+      console.log("🔄 Initializing auth...");
       try {
         const token = localStorage.getItem("token");
-        if (token) {
+        console.log("🔑 Token found:", token ? "Yes" : "No");
+
+        if (token && !user) {
+          console.log("📞 Calling /auth/me to validate token");
           const userData = await authService.validateToken(token);
+          console.log("✅ Token validation successful:", userData);
           setUser(userData);
+        } else if (token && user) {
+          console.log("👤 User already set, skipping token validation");
+        } else {
+          console.log("❌ No token found");
         }
       } catch (error) {
-        console.error("Auth initialization failed:", error);
-        localStorage.removeItem("token");
+        console.error("❌ Auth initialization failed:", error);
+
+        // Check if it's a real authentication error or just a network issue
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.log("🔒 Authentication error, clearing token");
+          localStorage.removeItem("token");
+          setUser(null);
+        } else {
+          console.log(
+            "🌐 Network/server error, keeping user logged in if exists"
+          );
+          // Keep user logged in for network errors
+        }
       } finally {
         setLoading(false);
+        setInitialized(true);
+        console.log("✅ Auth initialization complete");
       }
     };
-    initializeAuth();
 
-    // Set a dummy user
-    // setUser({
-    //   id: 1,
-    //   firstName: 'Dev',
-    //   lastName: 'User',
-    //   email: 'devuser@example.com',
-    //   role: 'admin',
-    //   avatar: '',
-    // });
-    // setLoading(false);
-  }, []);
+    if (!initialized) {
+      initializeAuth();
+    }
+  }, [user, initialized]);
 
   const login = async (credentials) => {
+    console.log("🔑 Login attempt started");
     try {
       setLoading(true);
       const response = await authService.login(credentials);
+      console.log("📝 Login response:", response);
 
       if (response.token) {
-        console.log("In AuthProvider login:", response);
+        console.log("💾 Storing token in localStorage");
         localStorage.setItem("token", response.token);
-        setUser(response.username);
+
+        // Try to get full user details from /me endpoint
+        try {
+          console.log("📞 Fetching user details from /auth/me");
+          const userResponse = await authService.validateToken(response.token);
+          console.log("👤 User details fetched:", userResponse);
+          setUser(userResponse);
+        } catch (userError) {
+          console.warn(
+            "⚠️ Could not fetch user details, using JWT response:",
+            userError
+          );
+          // Fall back to basic user info from JwtResponseDto
+          const basicUser = {
+            username: response.username,
+            email: response.email,
+          };
+          console.log("👤 Setting basic user info:", basicUser);
+          setUser(basicUser);
+        }
+
         toast.success("Login successful!");
         return { success: true };
+      } else {
+        console.error("❌ No token in response");
+        return { success: false, error: "No token received" };
       }
     } catch (error) {
-      console.error("Login failed:", error);
-      const message = error.response?.message || "Login failed";
+      console.error("❌ Login failed:", error);
+      const message =
+        error.response?.data?.message || error.message || "Login failed";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -70,19 +109,21 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
+    console.log("📝 Registration attempt started");
     try {
       setLoading(true);
       const response = await authService.register(userData);
+      console.log("📝 Registration response:", response);
 
-      if (response.token) {
-        localStorage.setItem("token", response.token);
-        setUser(response.user);
-        toast.success("Registration successful!");
-        return { success: true };
+      if (response.id) {
+        // Registration successful, but no token returned
+        toast.success("Registration successful! Please login.");
+        return { success: true, requiresLogin: true };
       }
     } catch (error) {
-      console.error("Registration failed:", error);
-      const message = error.response?.data?.message || "Registration failed";
+      console.error("❌ Registration failed:", error);
+      const message =
+        error.response?.data?.message || error.message || "Registration failed";
       toast.error(message);
       return { success: false, error: message };
     } finally {
@@ -91,26 +132,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    console.log("🚪 Logout initiated");
     try {
       await authService.logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("❌ Logout error:", error);
     } finally {
       localStorage.removeItem("token");
       setUser(null);
+      setInitialized(false);
       toast.success("Logged out successfully");
+      console.log("✅ Logout complete");
     }
   };
 
   const updateProfile = async (profileData) => {
+    console.log("👤 Profile update attempt started");
     try {
       const updatedUser = await authService.updateProfile(profileData);
       setUser(updatedUser);
       toast.success("Profile updated successfully");
       return { success: true };
     } catch (error) {
-      console.error("Profile update failed:", error);
-      const message = error.response?.data?.message || "Profile update failed";
+      console.error("❌ Profile update failed:", error);
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        "Profile update failed";
       toast.error(message);
       return { success: false, error: message };
     }
@@ -125,6 +173,15 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     isAuthenticated: !!user,
   };
+
+  console.log(
+    "🔍 AuthProvider render - User:",
+    user,
+    "Loading:",
+    loading,
+    "Authenticated:",
+    !!user
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

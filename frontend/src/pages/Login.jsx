@@ -1,7 +1,6 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { authService } from "../service/authService";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const Login = () => {
@@ -13,7 +12,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
 
-  const { login } = useAuth();
+  const { login, register } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -32,12 +31,6 @@ const Login = () => {
       return false;
     }
 
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    // if (!emailRegex.test(formData.email)) {
-    //   setError("Please enter a valid email address");
-    //   return false;
-    // }
-
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long");
       return false;
@@ -55,22 +48,28 @@ const Login = () => {
     setError("");
 
     try {
-      let response;
+      let result;
       if (isSignUp) {
-        response = await authService.register(formData);
+        result = await register(formData);
+        if (result.success && result.requiresLogin) {
+          // Switch to login mode after successful registration
+          setIsSignUp(false);
+          setFormData({ usernameOrEmail: "", password: "" });
+          return;
+        }
       } else {
-        response = await authService.login(formData);
-        // console.log("Login response:", response);
+        result = await login(formData);
+        if (result.success) {
+          console.log("Authentication successful, navigating to dashboard");
+          navigate("/dashboard");
+        }
       }
 
-      if (response.token) {
-        login(response.username, response.token);
-        console.log("Login successful, navigating to dashboard");
-        navigate("/dashboard");
-      } else {
-        setError(response.message || "Authentication failed");
+      if (!result.success) {
+        setError(result.error || "Authentication failed");
       }
     } catch (err) {
+      console.error("Authentication error:", err);
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
