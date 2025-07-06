@@ -1,0 +1,100 @@
+server:
+  port: 8084
+  servlet:
+    context-path: /api/reports
+
+spring:
+  application:
+    name: report-service
+
+  # PostgreSQL Configuration (for user data if needed)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/devflow_reports
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+
+  # MongoDB Configuration (primary storage for reports)
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/devflow_reports
+      auto-index-creation: true
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 2
+
+  # Security Configuration
+  security:
+    jwt:
+      secret: mySecretKey123456789012345678901234567890
+      expiration: 86400000 # 24 hours
+
+  # Actuator Configuration
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health,info,metrics,env
+    endpoint:
+      health:
+        show-details: when-authorized
+
+  # Eureka Client Configuration
+  eureka:
+    client:
+      enabled: false # Disable for now, enable when eureka server is running
+      service-url:
+        defaultZone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
+      hostname: localhost
+
+# Custom Application Properties
+devflow:
+  report:
+    storage:
+      max-file-size: 10MB
+      allowed-formats: pdf,json,html
+    async:
+      thread-pool-size: 10
+      queue-capacity: 100
+    pdf:
+      template-path: classpath:templates/
+      output-path: /tmp/reports/
+
+# Logging Configuration
+logging:
+  level:
+    com.devflow: DEBUG
+    org.springframework.data.mongodb: DEBUG
+    org.springframework.amqp: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/report-service.log
