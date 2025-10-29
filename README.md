@@ -1,40 +1,61 @@
-# DevFlow - Distributed Code Quality Platform
+# DevFlow - Code Quality Platform
 
-A microservices-based platform for code analysis and quality assessment using AI-powered tools.
+A microservices-based platform for AI-powered code analysis and quality assessment.
 
-## Architecture
+## 🚀 Quick Start
 
-- **API Gateway**: Routes requests and handles authentication
-- **User Service**: User management and authentication
-- **Code Analysis Service**: AI-powered code analysis using Ollama
-- **Report Service**: Generate and store analysis reports
-- **Notification Service**: Real-time notifications and alerts
+```bash
+# Start all services
+docker-compose up -d
 
-## Tech Stack
+# Start frontend
+cd frontend
+npm install
+npm start
+```
 
-- **Backend**: Spring Boot 3.x, Spring Cloud Gateway
-- **Databases**: PostgreSQL, MongoDB, Redis
-- **Messaging**: RabbitMQ
-- **AI**: Ollama with MCP integration
-- **Frontend**: React
-- **Containerization**: Docker & Docker Compose
+**Login:** demo@devflow.com / demo123
 
-## Quick Start
+**Access:** http://localhost:3000
 
-1. Clone the repository
-2. Run `docker-compose up -d` to start databases
-3. Start services individually or use Docker
+## 🏗️ Architecture
 
-## Development Progress
+- **API Gateway** (8080) - Routes & authentication
+- **User Service** (8081) - User management
+- **Code Analysis** (8082) - AI code analysis
+- **Report Service** (8083) - Report generation
+- **Notification** (8084) - Real-time notifications
+- **Eureka Server** (8761) - Service discovery
 
-- [x] Project structure and Docker setup
-- [x] User Service implementation
-- [x] API Gateway setup
-- [ ] Code Analysis Service
-- [ ] Report Service
-- [ ] Notification Service
-- [ ] Frontend React app
+## 🛠️ Tech Stack
 
-## API Documentation
+**Backend:** Spring Boot 3.x, Spring Cloud Gateway  
+**Frontend:** React, Axios, TailwindCSS  
+**Databases:** PostgreSQL, MongoDB, Redis  
+**Messaging:** RabbitMQ  
+**AI:** Ollama (CodeLlama)
 
-Will be available at `http://localhost:8080/swagger-ui.html` once services are running.
+## 🔧 Development
+
+### Run Services Locally
+```bash
+# Start databases only
+docker-compose up -d postgres-user postgres-analysis mongodb redis rabbitmq ollama
+
+# Run services with Maven
+cd user-service && mvn spring-boot:run
+cd api-gateway && mvn spring-boot:run
+cd code-analysis-service && mvn spring-boot:run
+```
+
+### Troubleshooting
+
+**CORS errors?** Make sure frontend proxy is configured in `package.json`
+
+**Login fails?** Check if User Service is running on port 8081
+
+**Services won't start?** Ensure Docker Desktop is running
+
+## 📝 API Documentation
+
+Swagger UI: http://localhost:8081/swagger-ui.html
