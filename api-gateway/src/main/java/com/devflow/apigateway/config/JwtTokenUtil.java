@@ -15,7 +15,8 @@ public class JwtTokenUtil {
     private final SecretKey secretKey;
 
     public JwtTokenUtil() {
-        String secret = "devflow-secret-key-change-in-production-needs-to-be-longer-for-hs512";
+        // Must match the secret in user-service application.yml
+        String secret = "mySecretKey123456789012345678901234567890";
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
